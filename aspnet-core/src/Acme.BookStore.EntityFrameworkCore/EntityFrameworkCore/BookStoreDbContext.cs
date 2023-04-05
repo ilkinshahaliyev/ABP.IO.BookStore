@@ -1,4 +1,5 @@
-﻿using Acme.BookStore.Books;
+﻿using Acme.BookStore.Authors;
+using Acme.BookStore.Books;
 using Microsoft.EntityFrameworkCore;
 using Volo.Abp.AuditLogging.EntityFrameworkCore;
 using Volo.Abp.BackgroundJobs.EntityFrameworkCore;
@@ -26,6 +27,7 @@ public class BookStoreDbContext :
     ITenantManagementDbContext
 {
     public DbSet<Book> Books { get; set; }
+    public DbSet<Author> Authors { get; set; }
 
     #region Entities from the modules
 
@@ -76,8 +78,21 @@ public class BookStoreDbContext :
         builder.Entity<Book>(book =>
         {
             book.ToTable(BookStoreConsts.DbTablePrefix + "Books", BookStoreConsts.DbSchema);
+
             book.ConfigureByConvention();
+
             book.Property(x => x.Name).IsRequired().HasMaxLength(128);
+        });
+
+        builder.Entity<Author>(author =>
+        {
+            author.ToTable(BookStoreConsts.DbTablePrefix + "Authors", BookStoreConsts.DbSchema);
+
+            author.ConfigureByConvention();
+
+            author.Property(x => x.Name).IsRequired().HasMaxLength(AuthorConsts.MaxNameLength);
+
+            author.HasIndex(x => x.Name);
         });
     }
 }
